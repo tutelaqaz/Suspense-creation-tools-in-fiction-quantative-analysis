@@ -1,0 +1,91 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jun  2 19:59:14 2016
+
+@author: tutela
+"""
+
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jun  2 13:31:01 2016
+
+@author: tutela
+"""
+
+# -*- coding: utf-8 -*-
+"""
+Created on Fri May 27 18:58:06 2016
+
+@author: tutela
+"""
+''' Создание списка слов саспенс и не саспенс и их тип'''
+
+import csv
+
+words_pos = {}
+my_words = []
+my_words_pos = {}
+freqs = []
+with open('freqrnc2011.csv', 'r', encoding = 'utf-8') as f:
+    inputf = csv.reader(f, delimiter = '\t')
+    for row in inputf:
+        key = row[0]
+        words_pos[key]= row[1]
+
+def replacing(words):
+    for word in words:
+        if word == '-' or word =='--' or word =='—' or word == '':
+            words.remove(word)
+    return words
+      
+with open('made_NonSuspense.csv', 'r', encoding = 'utf-8') as file:
+    inputfile = csv.reader(file, delimiter = ';')
+    for row in inputfile:
+        new_words = []
+        words = row[0].split()
+        for word in words:
+            word = word.strip('.,.-_--.-*~.:;?!«\»\'\"')
+            new_words.append(word)
+        new_words = replacing(new_words)
+        my_words.append(new_words)
+
+x = 0
+header = ' ;a;adv;advpro;anum;apro;conj;intj;num;part;pr;s;s.PROP;spro;v;\n'
+for words in my_words:
+    a = {'a': 0, 'adv' : 0, 'v': 0, 's.PROP': 0, 'spro': 0, 's':0, 
+    'num' :0, 'pr':0, 'part':0, 'intj' : 0, 'conj':0, 'apro': 0, 'anum':0, 'advpro':0}
+    x += 1
+    for word in words:
+        if word in words_pos:
+            key = words_pos[word]
+            if key in a:
+                a[key] +=1
+        else:
+            #key = 'unknown'
+            print(word)
+            key = input('Pos ')
+            if key in a:
+                a[key] +=1
+            else:
+                a[key] = 1
+    header += ('NONS' + str(x) +';' + str(a['a']) + ';' + str(a['adv']) + ';' + str(a['advpro']) + ';'
+                + str(a['anum']) + ';'+ str(a['apro']) + ';'+ str(a['conj']) + ';'+ str(a['intj']) + ';'
+                + str(a['num']) + ';'+ str(a['part']) + ';'+ str(a['pr']) + ';'+ str(a['s']) + ';'
+                + str(a['s.PROP']) + ';'+ str(a['spro']) + ';'+ str(a['v']) + ';\n')
+             
+'''         
+header = ''
+for key in my_words:
+    freq = my_words[key]
+    if key in words_pos:
+        if freq[0] != '':
+            my_words_pos[key] = [words_pos[key], '']
+            header += key + ';'+ words_pos[key] + ';;\n'
+        if freq[1] != '':
+            my_words_pos[key] = ['', words_pos[key]]
+            header += key + ';;'+ words_pos[key] + ';\n'
+'''    
+with open('NONSUS_pos_table.csv', 'w', encoding = 'utf-8') as ff:           
+    ff.write(header)
+
+print('Done')
